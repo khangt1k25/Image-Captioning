@@ -26,7 +26,17 @@ inceptionv3 = InceptionV3(weights="imagenet", include_top=False)
 modelCNN = Model(inceptionv3.input, inceptionv3.layers[-1].output)
 
 
-def preprocess_img(self, image_path):
+def preprocess_img_id(img_id):
+  img_folder = './content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_Dataset/'
+  image_path = img_folder + img_id
+  img = tf.io.read_file(image_path)
+  img = tf.image.decode_jpeg(img, channels = 3)
+  img = tf.image.resize(img, (299,299))
+  img = preprocess_input(img)
+  return img, image_path
+
+
+def preprocess_img_path(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, (299, 299))
@@ -58,6 +68,26 @@ class data_loader:
         self.tokenizing()
         self.cap_train, self.name_train = self.create_split(self.train_captions)
         self.cap_test, self.name_test = self.create_split(self.test_captions)
+
+
+    
+    def save_npy(self):
+        encode = sorted(set(self.train_id + self.test_id))
+        image_dataset = tf.data.Dataset.from_tensor_slices(encode)
+        image_dataset = image_dataset.map(preprocess_img_id, num_parallel_calls = tf.data.experimental.AUTOTUNE).batch(32)
+        for img, path in tqdm(image_dataset):
+            batch_features = modelCNN(img)
+            batch_features = tf.reshape(batch_features, (batch_features.shape[0],-1, batch_features.shape[3]))
+            for bf, p in zip(batch_features, path):
+                path_of_features = p.numpy().decode('utf-8')+'.npy'
+                path_of_features = path_of_features.split('/')
+                path_of_features[-2] = 'Flicker8k_numpy'
+                path_of_features = '/'.join(path_of_features)
+                print(path_of_features)
+                np.save(path_of_features, bf.numpy())
+
+            
+
 
     def load_id(self, split):
         path = (
@@ -106,7 +136,7 @@ class data_loader:
         self.tokenizer = tf.keras.preprocessing.text.Tokenizer(
             num_words=self.top_k,
             oov_token="<unk>",
-            filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ',
+            filters= '!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ',
         )
 
         self.tokenizer.fit_on_texts(all_train_captions)

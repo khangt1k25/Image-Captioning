@@ -84,4 +84,4 @@ class Decoder(tf.keras.Model):
         return x, state, attention_weights
 
     def reset_state(self, batch_size):
-        return tf.zeros((batch_size, self.units))
+        return tf.zeros((batch_size, self.units), dtype=tf.float32)

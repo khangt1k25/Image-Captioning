@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from data import modelCNN, preprocess_img, data_loader
+from data import modelCNN, preprocess_img_path, data_loader
 from models import Encoder, Decoder
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ def evaluate(encoder, decoder, tokenizer, max_length, attention_features_shape, 
 
     hidden = decoder.reset_state(batch_size=1)
 
-    temp_input = tf.expand_dims(preprocess_img(image)[0], 0)
+    temp_input = tf.expand_dims(preprocess_img_path(image)[0], 0)
     img_tensor_val = modelCNN(temp_input)
     img_tensor_val = tf.reshape(
         img_tensor_val, (img_tensor_val.shape[0], -1, img_tensor_val.shape[3])
@@ -53,53 +53,92 @@ def plot_attention(image, result, attention_plot):
         ax.imshow(temp_att, cmap="gray", alpha=0.6, extent=img.get_extent())
 
     plt.savefig(
-        "/content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flickr8k_stats/res.png"
+        "./content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flickr8k_stats/res.png"
     )
     plt.tight_layout()
     plt.show()
 
 
-if __name__ == "__main__":
+def captioning(image_path):
+    
     loader = data_loader(
         features_shape=2048,
         attention_features_shape=64,
         batch_size=256,
         buffer_size=1000,
-        top_k=5000,
+        top_k=5000
     )
-    rid = np.random.randint(0, len(loader.name_test))
-    image_id = loader.name_test[rid]
-    image_path = (
-        "/content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_Dataset/"
-        + image_id
-    )
-    real_caption = " ".join(
-        [loader.tokenizer.index_word[i] for i in loader.cap_test[rid] if i not in [0]]
-    )
+    
+
     # loading model
     encoder = Encoder(200)
     decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512)
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
-    loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
-        from_logits=True, reduction="none"
-    )
-    checkpoint_path = "/content/drive/My Drive/datasets/modelcheckpoint/train"
+    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/train"
     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
-    start_epoch = 0
     if ckpt_manager.latest_checkpoint:
-        start_epoch = int(ckpt_manager.latest_checkpoint.split("-")[-1])
-        # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint)
 
     # tesing
-    result, attention_plot = evaluate(
+    result, _ = evaluate(
         encoder,
         decoder,
         loader.tokenizer,
         loader.max_length,
         loader.attention_features_shape,
-        image_id,
+        image_path
     )
-    print("Real Caption:", real_caption)
-    print("Prediction Caption:", " ".join(result))
+    result = " ".join(result)
+    return result
+
+
+# if __name__ == "__main__":
+#     loader = data_loader(
+#         features_shape=2048,
+#         attention_features_shape=64,
+#         batch_size=256,
+#         buffer_size=1000,
+#         top_k=5000,
+#     )
+    
+
+#     # loading model
+#     encoder = Encoder(200)
+#     decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512)
+#     optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
+#     loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
+#         from_logits=True, reduction="none"
+#     )
+#     checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/train"
+#     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
+#     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
+#     start_epoch = 0
+#     if ckpt_manager.latest_checkpoint:
+#         start_epoch = int(ckpt_manager.latest_checkpoint.split("-")[-1])
+#         # restoring the latest checkpoint in checkpoint_path
+#         ckpt.restore(ckpt_manager.latest_checkpoint)
+
+#     # tesing
+
+
+#     rid = np.random.randint(0, len(loader.name_train))
+#     image_id = loader.name_train[rid]
+#     image_path = './content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_Dataset/'+image_id
+#     real_caption = ' '.join([loader.tokenizer.index_word[i] for i in loader.cap_train[rid] if i not in [0]])
+    
+#     result, attention_plot = evaluate(
+#         encoder,
+#         decoder,
+#         loader.tokenizer,
+#         loader.max_length,
+#         loader.attention_features_shape,
+#         image_path,
+#     )
+      
+
+
+#     print ('Real Caption:', real_caption)
+#     print ('Prediction Caption:', ' '.join(result))
+#     plot_attention(image_path, result, attention_plot)
+    
