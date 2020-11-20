@@ -1,7 +1,7 @@
 # Image-Captioning 
 ## Data 
 Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder : /content/drive/My Drive/datasets/ 
-
+```
 Structure:
 ├─ data.py                               % data_loader 
 ├─ models.py                             % all structure model in here 
@@ -22,14 +22,23 @@ Structure:
     └─ modelcheckpoint
         └─ train
                     
+```
 
 ## Preprocessing
-Run preprocess.py to prepare data for train. ( This may take a while)
-## Training 
-Run train.py to train your self
+Run command to save image npy file
+```
+python preprocessing.py
+```
+## Training
+Train by yourself
+```
+python train.py
+```
 ## Testing
-Run data.py to see the demo
-
+I am making demo by flask, so u can try to use
+```
+python app.py
+```
 
 ## References
 This code inspired by : . https://www.tensorflow.org/tutorials/text/image_captioning
