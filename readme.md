@@ -1,5 +1,5 @@
 # Image-Captioning
-My tensorflow implement of show attend & tell: https://arxiv.org/abs/1502.03044
+My tensorflow implement of Show Attend & Tell paper: https://arxiv.org/abs/1502.03044
 
 ## Data 
 Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder : /content/drive/My Drive/datasets/ 
@@ -27,7 +27,7 @@ Structure:
 ```
 
 ## Preprocessing
-Run command to save image npy file
+Run command to save image npy and embedding matrix
 ```
 python preprocessing.py
 ```
@@ -37,7 +37,7 @@ Train by yourself
 python train.py
 ```
 ## Demo
-I am making demo by flask, so you can try to use
+I made demo by flask, so you can try to use
 ```
 python app.py
 ```
