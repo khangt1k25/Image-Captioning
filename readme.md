@@ -1,7 +1,9 @@
-# Image-Captioning 
-## Data 
-Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder: /content/drive/My Drive/datasets/ 
+# Image-Captioning
+My tensorflow implement of show attend & tell: https://arxiv.org/abs/1502.03044
 
+## Data 
+Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder : /content/drive/My Drive/datasets/ 
+```
 Structure:
 ├─ data.py                               % data_loader 
 ├─ models.py                             % all structure model in here 
@@ -22,23 +24,41 @@ Structure:
     └─ modelcheckpoint
         └─ train
                     
+```
 
 ## Preprocessing
-I take a step to save image_feature of all images from pretrained Resnet and save embedding matrix for vocabulary
+Run command to save image npy file
+```
+python preprocessing.py
+```
+## Training
+Train by yourself
+```
+python train.py
+```
+## Demo
+I am making demo by flask, so you can try to use
+```
+python app.py
+```
+Here some good results.
 
-Run preprocess.py to prepare data for train. ( This may take a while )
 
-## Training 
-Run train.py to train your self
+##### (1) A little boy with a bib on is watching the camera
+![alt text](./static/blinkbaby.png "blinkbaby")
 
-## Testing
-Run data.py to see the demo
+##### (2) Two men in karate uniforms kicking each other
+![alt text](./static/blinkbaby.png "blinkbaby")
+
+##### (3) A group of men are standing on a concrete
+![alt text](./static/bighero6.png "bighero6")
+
+##### (4) A man standing in front of a mountain
+![alt text](./static/khangnek.png "khang")
 
 
-
-## Results
- 
 
 ## References
 This code inspired by : . https://www.tensorflow.org/tutorials/text/image_captioning
                         . https://github.com/krishnaik06/Deployment-Deep-Learning-Model
+                        . https://machinelearningmastery.com/develop-a-deep-learning-caption-generation-model-in-python/
