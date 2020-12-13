@@ -40,7 +40,7 @@ class Encoder(tf.keras.Model):
 
 
 class Decoder(tf.keras.Model):
-    def __init__(self, embedding_dim, vocab_size, units):
+    def __init__(self, embedding_dim, vocab_size, units, embedding_matrix):
         super().__init__()
         self.units = units
         self.vocab_size = vocab_size
@@ -84,4 +84,4 @@ class Decoder(tf.keras.Model):
         return x, state, attention_weights
 
     def reset_state(self, batch_size):
-        return tf.zeros((batch_size, self.units), dtype=tf.float32)
+        return tf.zeros((int(batch_size), self.units))

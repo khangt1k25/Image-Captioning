@@ -4,8 +4,10 @@ from data import modelCNN, preprocess_img_path, data_loader
 from models import Encoder, Decoder
 from PIL import Image
 import matplotlib.pyplot as plt
+from nltk.translate.bleu_score import corpus_bleu
 
 
+# Evaluating result prediction caption for image
 def evaluate(encoder, decoder, tokenizer, max_length, attention_features_shape, image):
     attention_plot = np.zeros((max_length, attention_features_shape))
 
@@ -39,6 +41,8 @@ def evaluate(encoder, decoder, tokenizer, max_length, attention_features_shape, 
     return result, attention_plot
 
 
+
+# Plot image with attention map
 def plot_attention(image, result, attention_plot):
     temp_image = np.array(Image.open(image))
 
@@ -59,6 +63,7 @@ def plot_attention(image, result, attention_plot):
     plt.show()
 
 
+# Runing with specific img_path (Using for app.py)
 def captioning(image_path):
     
     loader = data_loader(
@@ -70,17 +75,18 @@ def captioning(image_path):
     )
     
 
-    # loading model
+    ## loadm odel and checkpoint 
+    embedding_matrix = np.load("./content/drive/My Drive/datasets/embeddingmatrix.npy")
     encoder = Encoder(200)
-    decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
-    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/train"
+    decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512, embedding_matrix = embedding_matrix)
+    optimizer = tf.keras.optimizers.Adam()
+    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/embedding"
     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
     if ckpt_manager.latest_checkpoint:
         ckpt.restore(ckpt_manager.latest_checkpoint)
 
-    # tesing
+    ## inference time
     result, _ = evaluate(
         encoder,
         decoder,
@@ -91,54 +97,4 @@ def captioning(image_path):
     )
     result = " ".join(result)
     return result
-
-
-# if __name__ == "__main__":
-#     loader = data_loader(
-#         features_shape=2048,
-#         attention_features_shape=64,
-#         batch_size=256,
-#         buffer_size=1000,
-#         top_k=5000,
-#     )
-    
-
-#     # loading model
-#     encoder = Encoder(200)
-#     decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512)
-#     optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
-#     loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
-#         from_logits=True, reduction="none"
-#     )
-#     checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/train"
-#     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
-#     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
-#     start_epoch = 0
-#     if ckpt_manager.latest_checkpoint:
-#         start_epoch = int(ckpt_manager.latest_checkpoint.split("-")[-1])
-#         # restoring the latest checkpoint in checkpoint_path
-#         ckpt.restore(ckpt_manager.latest_checkpoint)
-
-#     # tesing
-
-
-#     rid = np.random.randint(0, len(loader.name_train))
-#     image_id = loader.name_train[rid]
-#     image_path = './content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_Dataset/'+image_id
-#     real_caption = ' '.join([loader.tokenizer.index_word[i] for i in loader.cap_train[rid] if i not in [0]])
-    
-#     result, attention_plot = evaluate(
-#         encoder,
-#         decoder,
-#         loader.tokenizer,
-#         loader.max_length,
-#         loader.attention_features_shape,
-#         image_path,
-#     )
-      
-
-
-#     print ('Real Caption:', real_caption)
-#     print ('Prediction Caption:', ' '.join(result))
-#     plot_attention(image_path, result, attention_plot)
     

@@ -8,11 +8,11 @@ from nltk.translate.bleu_score import corpus_bleu
 import matplotlib.pyplot as plt
 
 
+# Training epoch
 @tf.function
 def train_step(encoder, decoder, optimizer, tokenizer, loss_object, img_tensor, target):
     loss = 0
     hidden = decoder.reset_state(batch_size=target.shape[0])
-
     dec_input = tf.expand_dims([tokenizer.word_index["<start>"]] * target.shape[0], 1)
 
     with tf.GradientTape() as tape:
@@ -33,6 +33,8 @@ def train_step(encoder, decoder, optimizer, tokenizer, loss_object, img_tensor, 
     return loss, total_loss
 
 
+
+# Validate to return hypothesis, target for calculating BLEU 
 def validate(encoder, decoder, optimizer, tokenizer, img_tensor, target):
     hidden = decoder.reset_state(batch_size=target.shape[0])
 
@@ -48,8 +50,8 @@ def validate(encoder, decoder, optimizer, tokenizer, img_tensor, target):
     hypo = hypo.T
     hypo = tokenizer.sequences_to_texts(hypo.tolist())
     target = tokenizer.sequences_to_texts(target.numpy().tolist())
-    hypo = [[ele for ele in hyp.split(" ") if ele != "<pad>"] for hyp in hypo]
-    target = [[ele for ele in tar.split(" ") if ele != "<pad>"] for tar in target]
+    hypo = [[ele for ele in hyp.split(" ") if ele not in ["<pad>","<end>"]] for hyp in hypo]
+    target = [[ele for ele in tar.split(" ") if ele not in ["<pad>","<end>"]] for tar in target]
     target = [[tar] for tar in target]
     return hypo, target
 
@@ -57,11 +59,11 @@ def validate(encoder, decoder, optimizer, tokenizer, img_tensor, target):
 @tf.function
 def run(EPOCHS):
 
-    # load tham số và data đi
+    ## Load data and init 
     loader = data_loader(
         features_shape=2048,
         attention_features_shape=64,
-        batch_size=256,
+        batch_size=64,
         buffer_size=1000,
         top_k=5000,
     )
@@ -75,23 +77,24 @@ def run(EPOCHS):
     vocab_size = loader.top_k + 1
     num_steps = len(loader.train_path) // loader.batch_size
 
-    # # Load model và  checkpoint
+    ## Load model
+    embedding_matrix = np.load("/content/drive/My Drive/datasets/embeddingmatrix.npy")
     encoder = Encoder(encoder_dim)
-    decoder = Decoder(embedding_dim, vocab_size, units)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.005)
+    decoder = Decoder(embedding_dim, vocab_size, units, embedding_matrix)
+    optimizer = tf.keras.optimizers.Adam()
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
         from_logits=True, reduction="none"
     )
-    checkpoint_path = "/content/drive/My Drive/datasets/modelcheckpoint/train"
+    ## Load checkpoint
+    checkpoint_path = "/content/drive/My Drive/datasets/modelcheckpoint/embedding"
     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
     start_epoch = 0
     if ckpt_manager.latest_checkpoint:
         start_epoch = int(ckpt_manager.latest_checkpoint.split("-")[-1])
-        # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint)
 
-    # Chạy
+    # Running
     BLEU_1, BLEU_2, BLEU_3, BLEU_4 = [], [], [], []
     loss_plot = []
     for epoch in range(start_epoch, EPOCHS):

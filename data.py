@@ -7,6 +7,7 @@ import random
 from tqdm import tqdm
 import re
 import numpy as np
+import os
 from nltk.translate.bleu_score import corpus_bleu
 from PIL import Image
 import pickle
@@ -52,6 +53,7 @@ class data_loader:
         self.attention_features_shape = attention_features_shape
         self.img_folder = "./content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_Dataset/"
         self.img_folder_np = "./content/drive/My Drive/datasets/Flickr8k/Flickr8k_Dataset/Flicker8k_numpy/"
+        self.glob_folder = "./content/drive/My Drive/datasets/glove/"
         self.batch_size = batch_size
         self.buffer_size = buffer_size
         self.top_k = top_k
@@ -87,6 +89,27 @@ class data_loader:
                 np.save(path_of_features, bf.numpy())
 
             
+    def save_embedding_matrix(self, embedding_dim):
+        # Load Glove model
+        embeddings_index = {}
+        f = open(os.path.join(self.glob_folder, 'glove.6B.200d.txt'), encoding="utf-8")
+        for line in f:
+            values = line.split()
+            word = values[0]
+            coefs = np.asarray(values[1:], dtype='float32')
+            embeddings_index[word] = coefs
+        f.close()
+        
+        embedding_matrix = np.zeros((self.top_k+1, embedding_dim))
+        embedding_matrix[0] = 0
+        for word, i in self.tokenizer.word_index.items():
+            if i == self.top_k+1:
+                break
+            embedding_vector = embeddings_index.get(word)
+            if embedding_vector is not None:
+                embedding_matrix[i] = embedding_vector
+
+        np.save('./content/drive/My Drive/datasets/embeddingmatrix.npy', embedding_matrix)
 
 
     def load_id(self, split):

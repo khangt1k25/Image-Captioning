@@ -1,6 +1,6 @@
 # Image-Captioning 
 ## Data 
-Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder : /content/drive/My Drive/datasets/ 
+Loading flickr8k datasets from https://academictorrents.com/details/9dea07ba660a722ae1008c4c8afdd303b6f6e53b  into folder: /content/drive/My Drive/datasets/ 
 
 Structure:
 ├─ data.py                               % data_loader 
@@ -24,12 +24,20 @@ Structure:
                     
 
 ## Preprocessing
-Run preprocess.py to prepare data for train. ( This may take a while)
+I take a step to save image_feature of all images from pretrained Resnet and save embedding matrix for vocabulary
+
+Run preprocess.py to prepare data for train. ( This may take a while )
+
 ## Training 
 Run train.py to train your self
+
 ## Testing
 Run data.py to see the demo
 
+
+
+## Results
+ 
 
 ## References
 This code inspired by : . https://www.tensorflow.org/tutorials/text/image_captioning

@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\admin\\Anaconda3\\envs\\call\\python.exe"
+    "python.pythonPath": "/home/khangt1k25/anaconda3/envs/webenv/bin/python",
+    "git.ignoreLimitWarning": true
 }
