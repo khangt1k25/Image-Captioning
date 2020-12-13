@@ -48,7 +48,7 @@ Here some good results.
 ![alt text](./static/blinkbaby.png "blinkbaby")
 
 ##### (2) Two men in karate uniforms kicking each other
-![alt text](./static/blinkbaby.png "blinkbaby")
+![alt text](./static/karate.png "blinkbaby")
 
 ##### (3) A group of men are standing on a concrete
 ![alt text](./static/bighero6.png "bighero6")
