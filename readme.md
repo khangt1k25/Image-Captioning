@@ -56,6 +56,9 @@ Here some good results.
 ##### (4) A man standing in front of a mountain
 ![alt text](./static/khangnek.png "khang")
 
+## Report
+
+[Report]('./static/slide.pdf')
 
 
 ## References

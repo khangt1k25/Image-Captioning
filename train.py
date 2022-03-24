@@ -33,7 +33,6 @@ def train_step(encoder, decoder, optimizer, tokenizer, loss_object, img_tensor, 
     return loss, total_loss
 
 
-
 # Validate to return hypothesis, target for calculating BLEU 
 def validate(encoder, decoder, optimizer, tokenizer, img_tensor, target):
     hidden = decoder.reset_state(batch_size=target.shape[0])

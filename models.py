@@ -50,16 +50,20 @@ class Decoder(tf.keras.Model):
         #     vocab_size,
         #     embedding_dim,
         #     embeddings_initializer=tf.keras.initializers.Constant(embedding_matrix),
-        #     trainable=False,
+        #     trainable=True,
         # )
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
 
-        self.gru = tf.keras.layers.GRU(
-            self.units,
-            return_sequences=True,
-            return_state=True,
-            recurrent_initializer="glorot_uniform",
-        )
+        # self.gru = tf.keras.layers.GRU(
+        #     self.units,
+        #     return_sequences=True,
+        #     return_state=True,
+        #     recurrent_initializer="glorot_uniform",
+        # )
+        self.lstm = tf.keras.layers.LSTM(self.units, return_sequences=True, return_state=True)
+
+        # self.bn = tf.keras.layers.BatchNormalization()
+        # self.dropout = tf.keras.layers.Dropout(0.5)
         self.fc1 = tf.keras.layers.Dense(units)
         self.fc2 = tf.keras.layers.Dense(vocab_size)
 
@@ -73,7 +77,11 @@ class Decoder(tf.keras.Model):
 
         x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
 
-        output, state = self.gru(x)
+        #output, state = self.gru(x)
+        output, state, c_state = self.lstm(x)
+
+        # output = self.bn(output)
+        # output = self.dropout(output)
 
         x = self.fc1(output)
 

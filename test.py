@@ -32,7 +32,7 @@ if __name__ == "__main__":
         from_logits=True, reduction="none"
     )
 
-    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/no_embedding"
+    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/lstm"
     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
     start_epoch = 0
@@ -41,10 +41,11 @@ if __name__ == "__main__":
         # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint)
 
+
     print(start_epoch)
     # # tesing
     bleu_1, bleu_2, bleu_3, bleu_4 = 0, 0, 0, 0
-    for (batch, (img_tensor, target)) in enumerate(dataset_test):
+    for (batch, (img_tensor, target)) in enumerate(dataset_train):
         hypotheses, references = validate(
             encoder, decoder, optimizer, tokenizer, img_tensor, target
         )
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         bleu_4 / (batch + 1),
     )
     bleu = bleu_1 + bleu_2 + bleu_3 + bleu_4
-    bleu = math.exp(bleu/4)
+    bleu = bleu/4
     print("Bleu_1: {}".format(bleu_1))
     print("Bleu_2: {}".format(bleu_2))
     print("Bleu_3: {}".format(bleu_3))

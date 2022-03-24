@@ -28,7 +28,9 @@ def evaluate(encoder, decoder, tokenizer, max_length, attention_features_shape, 
         predictions, hidden, attention_weights = decoder(dec_input, features, hidden)
 
         attention_plot[i] = tf.reshape(attention_weights, (-1,)).numpy()
-
+        
+        #predicted_id = tf.math.argmax(predictions, 1)[0].numpy()
+        #print(predicted_id)
         predicted_id = tf.random.categorical(predictions, 1)[0][0].numpy()
         result.append(tokenizer.index_word[predicted_id])
 
@@ -80,7 +82,7 @@ def captioning(image_path):
     encoder = Encoder(200)
     decoder = Decoder(embedding_dim=200, vocab_size=loader.top_k + 1, units=512, embedding_matrix = embedding_matrix)
     optimizer = tf.keras.optimizers.Adam()
-    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/embedding"
+    checkpoint_path = "./content/drive/My Drive/datasets/modelcheckpoint/lstm"
     ckpt = tf.train.Checkpoint(encoder=encoder, decoder=decoder, optimizer=optimizer)
     ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=3)
     if ckpt_manager.latest_checkpoint:
